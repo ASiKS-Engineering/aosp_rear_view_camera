@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">OpenRearViewCamera</string>
+    <string-array name="camera_formats">
+        <item>PAL</item>
+        <item>NTSC</item>
+        <item>SECAM</item>
+        <item>PAL-60</item>
+    </string-array>
+</resources>
