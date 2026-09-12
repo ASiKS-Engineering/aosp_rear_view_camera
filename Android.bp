@@ -12,12 +12,23 @@ android_app {
         "com.google.android.material_material",
         "androidx.camera_camera-camera2",
         "androidx.camera_camera-lifecycle",
-        "androidx.camera_camera-view",
+        "androidx.camera_camera-view_local",
     ],
     libs: ["android.car"],
     optimize: {
         enabled: false,
     },
+}
+
+// androidx.camera:camera-view is not part of the prebuilts/sdk androidx snapshot, so import it locally.
+android_library_import {
+    name: "androidx.camera_camera-view_local",
+    aars: ["libs/androidx.camera_camera-view.aar"],
+    static_libs: [
+        "androidx.camera_camera-core",
+        "androidx.appcompat_appcompat",
+    ],
+    sdk_version: "current",
 }
 
 prebuilt_etc {
