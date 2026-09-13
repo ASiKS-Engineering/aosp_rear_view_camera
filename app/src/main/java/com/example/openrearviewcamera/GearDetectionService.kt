@@ -52,7 +52,7 @@ class GearDetectionService : Service() {
             propertyManager?.registerCallback(
                 gearPropertyListener,
                 VehiclePropertyIds.GEAR_SELECTION,
-                CarPropertyManager.SENSOR_RATE_ON_CHANGE
+                CarPropertyManager.SENSOR_RATE_ONCHANGE
             )
         } catch (e: Exception) {
             Log.e("GearDetection", "Failed to connect to Car Service", e)
