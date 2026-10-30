@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">OpenRearViewCamera</string>
+    <string name="no_camera_available">No camera available</string>
     <string-array name="camera_formats">
         <item>PAL</item>
         <item>NTSC</item>

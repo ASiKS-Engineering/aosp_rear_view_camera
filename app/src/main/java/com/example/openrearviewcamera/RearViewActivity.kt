@@ -6,7 +6,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
@@ -58,7 +60,13 @@ class RearViewActivity : AppCompatActivity() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            val cameraProvider: ProcessCameraProvider = try {
+                cameraProviderFuture.get()
+            } catch (exc: Exception) {
+                Log.e(TAG, "Camera provider initialization failed", exc)
+                showStatus(getString(R.string.no_camera_available))
+                return@addListener
+            }
 
             val preview = Preview.Builder()
                 .build()
@@ -66,23 +74,41 @@ class RearViewActivity : AppCompatActivity() {
                     it.setSurfaceProvider(viewFinder.surfaceProvider)
                 }
 
-            // Target External USB Camera if available, otherwise Back camera
-            val cameraSelector = try {
+            // Prefer the external USB camera, then back, then any available camera
+            val candidates = listOf(
                 CameraSelector.Builder()
                     .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
-                    .build()
-            } catch (e: Exception) {
-                CameraSelector.DEFAULT_BACK_CAMERA
+                    .build(),
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                CameraSelector.DEFAULT_FRONT_CAMERA
+            )
+            val cameraSelector = candidates.firstOrNull { cameraProvider.hasCamera(it) }
+            if (cameraSelector == null) {
+                Log.e(TAG, "No camera available")
+                showStatus(getString(R.string.no_camera_available))
+                return@addListener
             }
 
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview)
             } catch (exc: Exception) {
-                Log.e("RearView", "Use case binding failed", exc)
+                Log.e(TAG, "Use case binding failed", exc)
+                showStatus(getString(R.string.no_camera_available))
             }
 
         }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun showStatus(message: String) {
+        findViewById<TextView>(R.id.statusText).apply {
+            text = message
+            visibility = View.VISIBLE
+        }
+    }
+
+    private companion object {
+        const val TAG = "RearView"
     }
 
     override fun onDestroy() {
